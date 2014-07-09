@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  Text: <input id="inputfield" type="text">
+  <button onclick="save()">Save</button>
+  Name <input id="saveas" type="text">
+</html>
+<script>
+
+ var xmlhttp = new XMLHttpRequest();
+ var commitid = document.location.pathname.split('/')[1].trim();
+ xmlhttp.open('GET', 'show/' + commitid, true);
+ xmlhttp.onreadystatechange = function() {
+   if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+     var message = JSON.parse(xmlhttp.responseText);
+     console.log(message);
+     document.getElementById('inputfield').value = message.state.text;
+     if(!commitid) {
+       commitid = message.ref;
+     }
+     console.log(commitid);
+     console.log(message.commitid);
+   }
+ }
+ xmlhttp.send();
+
+ function save() {
+   var text = document.getElementById('inputfield').value;
+   var post = new XMLHttpRequest();
+   post.open('PUT', '/commit', true);
+   post.setRequestHeader("Content-type","application/json");
+   var parent = commitid;
+   var newref = document.getElementById('saveas').value.trim()
+   var message = {newref: newref, parent: parent, state:{text: text}};
+   console.log(message);
+   post.send(JSON.stringify(message));
+   post.onreadystatechange = function() {
+     if (post.readyState==4 && post.status==200) {
+       var message = JSON.parse(post.response);
+       window.location.pathname = message.ref;
+     }
+ }
+
+ }
+
+</script>
