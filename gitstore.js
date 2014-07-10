@@ -10,7 +10,7 @@ Gitstore.prototype = new events.EventEmitter;
 
 Gitstore.prototype.init = function(init_state) {
   var self = this;
-  var init = cp.spawn('./gitstore.sh', ['-i', this.git_dir]);
+  var init = cp.spawn(__dirname + '/gitstore.sh', ['-i', this.git_dir]);
 
   init.stderr.setEncoding('utf8');
   init.stderr.on('data', function(data){
@@ -34,7 +34,7 @@ Gitstore.prototype.init = function(init_state) {
 }
 
 Gitstore.prototype.show = function(ref, callback) {
-  cp.execFile('../gitstore.sh', ['--show', ref],{cwd: this.git_dir}, function(err, stdout, stderr) {
+  cp.execFile(__dirname + '/gitstore.sh', ['--show', ref],{cwd: this.git_dir}, function(err, stdout, stderr) {
     var data = {ok: true, state: undefined};
     if(err) {
       data.ok = false;
@@ -52,7 +52,7 @@ Gitstore.prototype.commit = function(content, parent, branch, callback) {
     flags.push(branch)
   }
 
-  var commit = cp.spawn('../gitstore.sh', flags, {cwd: this.git_dir})
+  var commit = cp.spawn(__dirname + '/gitstore.sh', flags, {cwd: this.git_dir})
   commit.stdout.setEncoding('utf8');
   commit.stdout.on('data', function(data){
     callback(JSON.parse(data));
