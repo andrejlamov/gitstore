@@ -92,7 +92,7 @@ function main()
     if [ $COMMIT -a $PARENT ]
     then
         local is_parent=`git show-ref $PARENT`
-        if [[ !$is_parent ]]
+        if [[ ! $is_parent ]]
         then
             PARENT=$INITIAL_COMMIT_FILE
         fi
