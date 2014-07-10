@@ -46,6 +46,7 @@ Gitstore.prototype.show = function(ref, callback) {
 }
 
 Gitstore.prototype.commit = function(content, parent, branch, callback) {
+  parent = parent || 'ROOT'
   var flags = ['--commit', '--parent', parent];
   if(branch) {
     flags.push('--branch');
