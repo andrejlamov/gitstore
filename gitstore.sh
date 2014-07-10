@@ -78,6 +78,7 @@ function main()
     if [ $SHOW ]
     then
         `git rev-parse $SHOW &> /dev/null`
+
         if [[ "$?" -ne 0 ]]
         then
             SHOW=$INITIAL_COMMIT_FILE
@@ -90,6 +91,11 @@ function main()
 
     if [ $COMMIT -a $PARENT ]
     then
+        local is_parent=`git show-ref $PARENT`
+        if [[ !$is_parent ]]
+        then
+            PARENT=$INITIAL_COMMIT_FILE
+        fi
         COMMIT_ID=`write_obj $PARENT`
         if [ ! $MAYBE_BRANCH_NAME ]
         then
