@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 STORE_FILE=state.json
 INITIAL_COMMIT_FILE=ROOT
@@ -44,7 +44,7 @@ done
 function write_obj()
 {
     local obj_id=`git hash-object -w --stdin <&0`
-    git update-index --add --cacheinfo 100644 $obj_id $STORE_FILE
+    `git update-index --add --cacheinfo 100644 $obj_id $STORE_FILE`
     local tree_id=`git write-tree`
     local parent=$1
     if [[ "$parent" ]]
@@ -115,7 +115,7 @@ function main()
             local id=`git rev-parse $refhead`
             if [[ ("$merge_base" = "$id") ]]
             then
-                git update-ref $refhead $COMMIT_ID
+                `git update-ref $refhead $COMMIT_ID`
                 echo '{"event": "ff", "ref": "'$MAYBE_BRANCH_NAME'"}'
             else
                 echo '{"event": "no-ff", "ref": "'$COMMIT_ID'"}'
@@ -129,7 +129,7 @@ function main()
                 ref=$COMMIT_ID
             else
                 # The name is valid
-                git update-ref $refhead $COMMIT_ID
+                `git update-ref $refhead $COMMIT_ID`
                 ref=$MAYBE_BRANCH_NAME
             fi
             echo '{"event": "new-ref", "ref": "'$ref'"}'
