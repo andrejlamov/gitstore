@@ -34,6 +34,7 @@ Gitstore.prototype.init = function(init_state) {
 }
 
 Gitstore.prototype.show = function(ref, callback) {
+  ref = ref || 'ROOT'
   cp.execFile(__dirname + '/gitstore.sh', ['--show', ref],{cwd: this.git_dir}, function(err, stdout, stderr) {
     var data = {ok: true, state: undefined};
     if(err) {
