@@ -1,3 +1,13 @@
-{ "name" : "gitstore"
-, "version" : "1.0.0"
-, "dependencies" : ["http", "http-proxy", "node-static", "longjohn"]}
+{ "name" : "gitstore",
+  "version" : "1.0.0",
+  "dependencies" :
+  ["http",
+   "http-proxy",
+   "node-static",
+   "longjohn"
+  ],
+  "main": "index",
+  "engines": {
+      "node": "*"
+  }
+}

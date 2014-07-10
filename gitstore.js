@@ -1,8 +1,9 @@
 var cp = require('child_process')
   , events = require('events');
 
-var Gitstore = function(git_dir) {
-  this.git_dir = git_dir;
+var Gitstore = module.exports = function(git_dir) {
+    if (!(this instanceof Gitstore)) return new Gitstore(git_dir);
+    this.git_dir = git_dir;
 }
 
 Gitstore.prototype = new events.EventEmitter;
@@ -67,8 +68,4 @@ Gitstore.prototype.commit = function(content, parent, branch, callback) {
 
   commit.stdin.write(JSON.stringify(content));
   commit.stdin.end();
-}
-
-exports.create = function(git_dir) {
-  return new Gitstore(git_dir);
 }
