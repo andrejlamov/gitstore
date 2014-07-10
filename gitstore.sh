@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 STORE_FILE=state.json
 INITIAL_COMMIT_FILE=ROOT
@@ -77,7 +77,7 @@ function main()
 
     if [ $SHOW ]
     then
-        git rev-parse $SHOW 2> /dev/null
+        `git rev-parse $SHOW &> /dev/null`
         if [[ "$?" -ne 0 ]]
         then
             SHOW=$INITIAL_COMMIT_FILE
