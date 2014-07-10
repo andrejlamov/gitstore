@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 STORE_FILE=state.json
 INITIAL_COMMIT_FILE=ROOT
@@ -77,15 +77,15 @@ function main()
 
     if [ $SHOW ]
     then
-        if [[ `git rev-parse --verify --quiet $SHOW` || $SHOW = 'ROOT' ]]
+        git rev-parse $SHOW 2> /dev/null
+        if [[ "$?" -ne 0 ]]
         then
-            local content=`git show $SHOW:$STORE_FILE`
-            local id=$SHOW
-            echo '{"event":"show", "state":'$content', "ref":"'$id'"}'
-            exit 0
-        else
-            exit 1
+            SHOW=$INITIAL_COMMIT_FILE
         fi
+        local content=`git show $SHOW:$STORE_FILE`
+        local id=$SHOW
+        echo '{"event":"show", "state":'$content', "ref":"'$id'"}'
+        exit 0
     fi
 
     if [ $COMMIT -a $PARENT ]
