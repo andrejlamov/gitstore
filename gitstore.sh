@@ -77,7 +77,7 @@ function main()
 
     if [ $SHOW ]
     then
-        if [[ `git rev-parse $SHOW` || $SHOW = 'ROOT' ]]
+        if [[ `git rev-parse --verify --quiet $SHOW` || $SHOW = 'ROOT' ]]
         then
             local content=`git show $SHOW:$STORE_FILE`
             local id=$SHOW
