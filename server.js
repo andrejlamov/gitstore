@@ -1,7 +1,7 @@
 var http = require('http'),
     static = require('node-static'),
     cp = require('child_process'),
-    gs = require('./gitstore.js').create('store'),
+    gs = require('./gitstore.js')('store'),
     longjohn = require('longjohn');
 
 var file = new static.Server('./public');
