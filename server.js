@@ -10,19 +10,7 @@ var server = http.createServer(function (request, response) {
                var url = request.url.split('/').filter(function(d){ return d });
                if(url[0] == 'show') {
                  var ref = url[1] || 'ROOT';
-
-                 gs.show(ref, function(data){
-                   response.writeHead(200, {'Content-Type': 'application/json'});
-                   if(data.ok) {
-                     response.end(JSON.stringify(data.state));
-                   } else {
-                     gs.show('ROOT', function(data) {
-                       response.writeHead(200, {'Content-Type': 'application/json'});
-                       response.end(JSON.stringify(data.state));
-                     })
-                   }
-                 })
-
+                 gs.show(ref, response);
                } else if(url[0] == 'commit') {
                  var buffer = "";
                  request.on('data', function(data) {
@@ -33,11 +21,7 @@ var server = http.createServer(function (request, response) {
                  });
                  request.on('end', function() {
                    var message = JSON.parse(buffer);
-                   gs.commit(message.state, message.parent, message.newref, function(data) {
-                     response.writeHead(200, {'Content-Type': 'application/json'});
-                     response.end(JSON.stringify(data));
-                   })
-
+                   gs.commit(message.state, message.parent, message.newref, response);
                  });
                } else {
                  file.serveFile('/index.html', 200, {}, request, response);

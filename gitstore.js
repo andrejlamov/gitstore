@@ -29,35 +29,44 @@ Gitstore.prototype.init = function(init_state) {
     console.log('*** pipe error, git repo is already created?');
   })
 
-  init.stdin.write(JSON.stringify(init_state));
+  init.stdin.write(init_state);
   init.stdin.end();
 }
 
-Gitstore.prototype.show = function(ref, callback) {
+Gitstore.prototype.show = function(ref, response) {
   ref = ref || 'ROOT'
   cp.execFile(__dirname + '/gitstore.sh', ['--show', ref],{cwd: this.git_dir}, function(err, stdout, stderr) {
     var data = {ok: true, state: undefined};
     if(err) {
       data.ok = false;
     } else {
-      data.state = JSON.parse(stdout);
+      data.state = stdout;
     }
-    callback(data);
+    response.writeHead(200, {'Content-Type': 'application/json'});
+    if(data.ok) {
+      response.end(data.state);
+    } else {
+      this.show('ROOT', function(data) {
+        response.writeHead(200, {'Content-Type': 'application/json'});
+        response.end(data.state);
+      })
+    }
   })
 }
 
-Gitstore.prototype.commit = function(content, parent, branch, callback) {
-  parent = parent || 'ROOT'
+Gitstore.prototype.commit = function(content, parent, branch, response) {
+  parent = parent || 'ROOT';
   var flags = ['--commit', '--parent', parent];
   if(branch) {
     flags.push('--branch');
-    flags.push(branch)
+    flags.push(branch);
   }
 
-  var commit = cp.spawn(__dirname + '/gitstore.sh', flags, {cwd: this.git_dir})
+  var commit = cp.spawn(__dirname + '/gitstore.sh', flags, {cwd: this.git_dir});
   commit.stdout.setEncoding('utf8');
   commit.stdout.on('data', function(data){
-    callback(JSON.parse(data));
+    response.writeHead(200, {'Content-Type': 'application/json'});
+    response.end(JSON.stringify(data));
   })
 
   commit.stderr.setEncoding('utf8');
@@ -68,6 +77,6 @@ Gitstore.prototype.commit = function(content, parent, branch, callback) {
     console.log('*** commit error:\n' + data);
   })
 
-  commit.stdin.write(JSON.stringify(content));
+  commit.stdin.write(content);
   commit.stdin.end();
 }
