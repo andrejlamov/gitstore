@@ -28,7 +28,7 @@ var server = http.createServer(function (request, response) {
                }
              })
 
-var initialState = {text: "Hello ROOT"};
+var initialState = JSON.stringify({text: "Hello ROOT"});
 gs.init(initialState);
 gs.on('init', function(){
   server.listen(1337);
