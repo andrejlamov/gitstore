@@ -16,7 +16,7 @@
      document.getElementById('inputfield').value = message.state.text;
      if(!commitid) {
        commitid = message.ref;
-     }
+ }
      console.log(commitid);
      console.log(message.commitid);
    }
@@ -31,12 +31,12 @@
    var parent = commitid;
    var newref = document.getElementById('saveas').value.trim()
    var message = {newref: newref, parent: parent, state:{text: text}};
-   console.log(message);
+   console.log('send', message);
    post.send(JSON.stringify(message));
    post.onreadystatechange = function() {
      if (post.readyState==4 && post.status==200) {
-       var message = JSON.parse(post.response);
-       window.location.pathname = message.ref;
+         var message = JSON.parse(post.response);
+         window.location.pathname = message.ref;
      }
  }
 

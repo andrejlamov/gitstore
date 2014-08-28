@@ -12,17 +12,7 @@ var server = http.createServer(function (request, response) {
                  var ref = url[1] || 'ROOT';
                  gs.show(ref, response);
                } else if(url[0] == 'commit') {
-                 var buffer = "";
-                 request.on('data', function(data) {
-                   buffer += data;
-                   if (buffer.length > 1e6) {
-                     request.connection.destroy();
-                   }
-                 });
-                 request.on('end', function() {
-                   var message = JSON.parse(buffer);
-                   gs.commit(message.state, message.parent, message.newref, response);
-                 });
+                 gs.readAndCommit(request, response);
                } else {
                  file.serveFile('/index.html', 200, {}, request, response);
                }

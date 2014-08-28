@@ -34,6 +34,7 @@ Gitstore.prototype.init = function(init_state) {
 }
 
 Gitstore.prototype.show = function(ref, response) {
+  var self = this;
   ref = ref || 'ROOT'
   cp.execFile(__dirname + '/gitstore.sh', ['--show', ref],{cwd: this.git_dir}, function(err, stdout, stderr) {
     var data = {ok: true, state: undefined};
@@ -46,12 +47,28 @@ Gitstore.prototype.show = function(ref, response) {
     if(data.ok) {
       response.end(data.state);
     } else {
-      this.show('ROOT', function(data) {
+      self.show('ROOT', function(data) {
         response.writeHead(200, {'Content-Type': 'application/json'});
         response.end(data.state);
       })
     }
   })
+}
+
+Gitstore.prototype.readAndCommit = function(request, response) {
+  var self = this;
+
+  var buffer = "";
+  request.on('data', function(data) {
+    buffer += data;
+    if (buffer.length > 1e6) {
+      request.connection.destroy();
+    }
+  });
+  request.on('end', function() {
+    var message = JSON.parse(buffer);
+    self.commit(JSON.stringify(message.state), message.parent, message.newref, response);
+  });
 }
 
 Gitstore.prototype.commit = function(content, parent, branch, response) {
@@ -66,7 +83,7 @@ Gitstore.prototype.commit = function(content, parent, branch, response) {
   commit.stdout.setEncoding('utf8');
   commit.stdout.on('data', function(data){
     response.writeHead(200, {'Content-Type': 'application/json'});
-    response.end(JSON.stringify(data));
+    response.end(data);
   })
 
   commit.stderr.setEncoding('utf8');
