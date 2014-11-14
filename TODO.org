@@ -1,0 +1,2 @@
+* TODO Run git sandboxed with bash -r
+* TODO Branchname refer to old commit after fast-forward does
