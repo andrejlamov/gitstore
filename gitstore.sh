@@ -78,7 +78,6 @@ function main()
     if [ $SHOW ]
     then
         `git rev-parse $SHOW &> /dev/null`
-
         if [[ "$?" -ne 0 ]]
         then
             SHOW=$INITIAL_COMMIT_FILE

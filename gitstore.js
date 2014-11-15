@@ -4,7 +4,7 @@ var cp = require('child_process')
 var Gitstore = module.exports = function(git_dir) {
     if (!(this instanceof Gitstore)) return new Gitstore(git_dir);
     this.git_dir = git_dir;
-}
+};
 
 Gitstore.prototype = new events.EventEmitter;
 
@@ -14,14 +14,14 @@ Gitstore.prototype.init = function(init_state) {
 
   init.stderr.setEncoding('utf8');
   init.stderr.on('data', function(data){
-    console.log('*** error when creating bare repo:\n' + data)
-  })
+    console.log('*** error when creating bare repo:\n' + data);
+  });
 
   init.on('close', function(code) {
     if(code !== 0) {
-      console.log('*** error code:\n' + code)
+      console.log('*** error code:\n' + code);
     } else {
-      self.emit('init')
+      self.emit('init');
     }
   })
 
@@ -33,26 +33,40 @@ Gitstore.prototype.init = function(init_state) {
   init.stdin.end();
 }
 
+Gitstore.prototype.isValidId = function(str) {
+  var shaOrBranch = /^[a-zA-Z0-9_-]*$/;
+  return shaOrBranch.test(str);
+}
+
 Gitstore.prototype.show = function(ref, response) {
   var self = this;
-  ref = ref || 'ROOT'
-  cp.execFile(__dirname + '/gitstore.sh', ['--show', ref],{cwd: this.git_dir}, function(err, stdout, stderr) {
-    var data = {ok: true, state: undefined};
-    if(err) {
-      data.ok = false;
-    } else {
-      data.state = stdout;
-    }
+  ref = ref || 'ROOT';
+
+  var def_resp = function() {
     response.writeHead(200, {'Content-Type': 'application/json'});
-    if(data.ok) {
-      response.end(data.state);
-    } else {
-      self.show('ROOT', function(data) {
-        response.writeHead(200, {'Content-Type': 'application/json'});
-        response.end(data.state);
-      })
-    }
-  })
+    response.end(JSON.stringify({"event": "new-ref", "ref": "ROOT"}));
+  };
+
+  if(!self.isValidId(ref)){
+    def_resp();
+    return;
+  }
+
+  if(self.isValidId(ref)){
+    cp.execFile(__dirname + '/gitstore.sh'
+               , ['--show', ref]
+               , {cwd: this.git_dir}
+               , function(err, stdout, stderr) {
+                   if(err) {
+                     def_resp();
+                     return;
+                   }
+                   response.writeHead(200, {'Content-Type': 'application/json'});
+                   response.end(stdout);
+                 })
+  } else {
+    def_resp();
+  }
 }
 
 Gitstore.prototype.readAndCommit = function(request, response) {
@@ -72,7 +86,15 @@ Gitstore.prototype.readAndCommit = function(request, response) {
 }
 
 Gitstore.prototype.commit = function(content, parent, branch, response) {
+  var self = this;
   parent = parent || 'ROOT';
+
+  if(!self.isValidId(parent) || !self.isValidId(branch)){
+    response.writeHead(200, {'Content-Type': 'application/json'});
+    response.end(JSON.stringify({"event": "new-ref", "ref": "ROOT"}));
+    return;
+  }
+
   var flags = ['--commit', '--parent', parent];
   if(branch) {
     flags.push('--branch');
